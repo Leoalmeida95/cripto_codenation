@@ -1,8 +1,9 @@
+import os
 import json
 import requests
-import os
+import hashlib
 from os.path import dirname, isfile, join
-from flask import Flask
+from flask import Flask, render_template, request
 from flask_restful import Api, Resource
 from dotenv import load_dotenv
 
@@ -52,6 +53,9 @@ def get():
                 decifrado = decifrado + char
 
         data.update({'decifrado': decifrado})
+
+        resumo_criptografico = hashlib.sha1(decifrado.encode('utf8')).hexdigest()
+        data.update({'resumo_criptografico': resumo_criptografico})
         
         _json = json.dumps(data, indent=4)
 
@@ -59,10 +63,11 @@ def get():
             arquivo.write(_json)
     else:
         return "Erro ao obter o json do codenation", 500
-    #data=''
-    #url = 'https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=' + getenv('TOKEN')
-    #headers = {'Content-type': 'multipart/form-data; charset=UTF-8'}
-    #response = requests.post(url, data=data, headers=headers)
+
+    url = 'https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=' + os.getenv('TOKEN')
+    headers = {'Content-type': 'multipart/form-data'}
+    answer = {'answer': open('output/answer.json',)}
+    response = requests.post(url, files=answer, headers=headers)
 
     resposta = app.response_class(
         response=_json,
@@ -70,7 +75,17 @@ def get():
         mimetype='application/json'
     )
 
-    return resposta
+    return response.content
+
+@app.route('/handle_form', methods=['POST'])
+def handle_form():
+    print("Posted file: {}".format(request.files['file']))
+    file = request.files['file']
+    return ""
+
+@app.route("/send")
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=os.getenv('DEBUG'))
