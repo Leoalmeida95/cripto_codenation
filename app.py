@@ -22,11 +22,40 @@ def get():
     response = requests.get(url)
 
     _json ={}
+    caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.lower()
+    decifrado = ''
     if(response.status_code == 200):
+        
+        #pega os valores do json do codenation
         data = response.json()
+        cifrado = data.get('cifrado')
+        numero_casas = data.get('numero_casas')
+
+        #percorre os caracteres do texto cifrado
+        for char in cifrado:
+
+            if char in caracteres:
+                #retorna a posicao do caracter dentro da string 'caracteres'
+                posicao = caracteres.find(char)
+                posicao = posicao - numero_casas
+
+                if posicao >= len(caracteres):
+                    posicao = posicao - len(caracteres)
+                elif posicao < 0:
+                    posicao = posicao + len(caracteres)
+                    decifrado = decifrado + caracteres[posicao]
+                else:
+                    decifrado = decifrado + char
+            elif char == '.' or char == ' ' or char == ',':
+                decifrado = decifrado + char
+
+        print(cifrado)
+        print(decifrado)
+        
         _json = json.dumps(data, indent=4)
-        with open("output/answer.json", "w") as outfile:
-            outfile.write(_json)
+
+        with open("output/answer.json", "w") as arquivo:
+            arquivo.write(_json)
     else:
         return "Erro ao obter o json do codenation", 500
     #data=''
@@ -34,13 +63,13 @@ def get():
     #headers = {'Content-type': 'multipart/form-data; charset=UTF-8'}
     #response = requests.post(url, data=data, headers=headers)
 
-    response = app.response_class(
+    resposta = app.response_class(
         response=_json,
         status=200,
         mimetype='application/json'
     )
 
-    return response
+    return resposta
 
 if __name__ == '__main__':
     app.run(debug=os.getenv('DEBUG'))
