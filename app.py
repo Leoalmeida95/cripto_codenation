@@ -39,18 +39,19 @@ def get():
                 posicao = caracteres.find(char)
                 posicao = posicao - numero_casas
 
+                #calcula o char correspondente
                 if posicao >= len(caracteres):
                     posicao = posicao - len(caracteres)
                 elif posicao < 0:
                     posicao = posicao + len(caracteres)
                     decifrado = decifrado + caracteres[posicao]
                 else:
-                    decifrado = decifrado + char
+                    decifrado = decifrado + caracteres[posicao]
+
             elif char == '.' or char == ' ' or char == ',':
                 decifrado = decifrado + char
 
-        print(cifrado)
-        print(decifrado)
+        data.update({'decifrado': decifrado})
         
         _json = json.dumps(data, indent=4)
 
