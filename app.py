@@ -70,7 +70,7 @@ def get():
 def submit():
     url = 'https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=' + os.getenv('TOKEN')
     headers = {'Content-type': 'multipart/form-data'}
-    file = request.files['file']
+    file = request.con
     print(file)
     # response = requests.post(url, files=file, headers=headers)
     # return response.content
